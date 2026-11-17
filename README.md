@@ -2,8 +2,7 @@
 
 PyTorch implementation of FDAM for joint box detection and grid classification of thin and tiny pavement cracks.
 
-**Haiyang Xu, Bin Pan, Mengze Wang, Qiaoying Qu, and Zhenwei Shi**
-[Paper](https://arxiv.org/abs/2611.19089) · [PDF](https://arxiv.org/pdf/2611.19089) · [Code](https://github.com/Lab-PANbin-owner/FDAM)
+[Paper](https://arxiv.org/abs/2611.19089)
 
 ## Repository contents
 
@@ -20,7 +19,7 @@ This source release excludes datasets, weights, experiment results, logs, cluste
 
 ## Abstract
 
-Pavement crack grid localization remains challenging for thin and tiny cracks due to weak visual cues and background interference. Box detection often misses these cracks, while supervised semantic segmentation faces limited pixel-wise annotations and high labeling costs. In this paper, we propose a Frequency-Direction-Aware Multi-Task framework (FDAM) with box detection and grid classification branches. The core grid classification branch comprises Frequency-Domain Enhancement (FDE) and Directional Feature Refinement (DFR). FDE adaptively weights spectral bands and fuses reconstructed features with spatial features. DFR captures thin crack patterns through multi-scale strip convolutions, direction-sensitive modulation, and feature recalibration. Sparse positive cells and ambiguous local predictions motivate adaptive grid supervision. Adaptive Importance Reweighting emphasizes uncertain predictions and local label transitions, with focal supervision for all cells. Our contribution is to couple the box detection and grid classification branches through shared feature learning for pavement crack grid localization. We validate FDAM on our RoadDistress2026 dataset of thin and tiny cracks and further evaluate it on public datasets Crack500 and DeepCrack. The code is available at https://github.com/Lab-PANbin-owner/FDAM.
+Pavement crack grid localization remains challenging for thin and tiny cracks due to weak visual cues and background interference. Box detection often misses these cracks, while supervised semantic segmentation faces limited pixel-wise annotations and high labeling costs. In this paper, we propose a Frequency-Direction-Aware Multi-Task framework (FDAM) with box detection and grid classification branches. The core grid classification branch comprises Frequency-Domain Enhancement (FDE) and Directional Feature Refinement (DFR). FDE adaptively weights spectral bands and fuses reconstructed features with spatial features. DFR captures thin crack patterns through multi-scale strip convolutions, direction-sensitive modulation, and feature recalibration. Sparse positive cells and ambiguous local predictions motivate adaptive grid supervision. Adaptive Importance Reweighting emphasizes uncertain predictions and local label transitions, with focal supervision for all cells. Our contribution is to couple the box detection and grid classification branches through shared feature learning for pavement crack grid localization. We validate FDAM on our RoadDistress2026 dataset of thin and tiny cracks and further evaluate it on public datasets Crack500 and DeepCrack. The code is available at https://github.com/Lab-PANbin/FDAM.
 
 ## Method
 
@@ -33,7 +32,7 @@ The main implementation is in `engine/head/frequency_attention_grid_head.py`, `e
 Linux with an NVIDIA GPU is recommended. Run all commands from the repository root.
 
 ```bash
-git clone https://github.com/Lab-PANbin-owner/FDAM.git
+git clone https://github.com/Lab-PANbin/FDAM.git
 cd FDAM
 conda env create -f environment.yml
 conda activate fdam
