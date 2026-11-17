@@ -1,0 +1,16 @@
+# Versions used by the FDAM runtime. CUDA 12.1 is configured in environment.yml.
+torch==2.2.2
+torchvision==0.17.2
+numpy==1.26.4
+scipy==1.14.1
+Pillow==11.0.0
+PyYAML==6.0.2
+faster-coco-eval==1.6.5
+pycocotools==2.0.8
+tensorboard==2.18.0
+calflops==0.3.2
+transformers==4.48.1
+matplotlib==3.10.0
+tqdm==4.67.1
+# The server uses OpenCV 4.11; pip wheels include a build suffix.
+opencv-python>=4.11,<4.12

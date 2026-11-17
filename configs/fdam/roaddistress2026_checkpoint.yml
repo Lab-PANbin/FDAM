@@ -1,0 +1,315 @@
+# Archived checkpoint configuration; original AIR-off settings.
+# Source: deimv2_dinov3_l_roaddistress2024_13000_freq_attention_prior.yml
+# Run commands from the repository root.
+task: detection
+evaluator:
+  type: CocoEvaluator
+  iou_types:
+  - bbox
+num_classes: 4
+remap_mscoco_category: false
+train_dataloader:
+  type: DataLoader
+  dataset:
+    type: CocoDetection
+    img_folder: ./data/roaddistress2026/images/train
+    ann_file: ./data/roaddistress2026/annotations/instances_train.json
+    return_masks: false
+    transforms:
+      type: Compose
+      ops:
+      - type: Mosaic
+        output_size: 1024
+        rotation_range: 10
+        translation_range:
+        - 0.1
+        - 0.1
+        scaling_range:
+        - 0.5
+        - 1.5
+        probability: 1.0
+        fill_value: 0
+        use_cache: true
+        max_cached_images: 50
+        random_pop: true
+      - type: RandomPhotometricDistort
+        p: 0.5
+      - type: RandomZoomOut
+        fill: 0
+      - type: RandomIoUCrop
+        p: 0.8
+      - type: SanitizeBoundingBoxes
+        min_size: 1
+      - type: RandomHorizontalFlip
+      - type: Resize
+        size:
+        - 1024
+        - 1024
+      - type: SanitizeBoundingBoxes
+        min_size: 1
+      - type: ConvertPILImage
+        dtype: float32
+        scale: true
+      - type: Normalize
+        mean:
+        - 0.485
+        - 0.456
+        - 0.406
+        std:
+        - 0.229
+        - 0.224
+        - 0.225
+      - type: ConvertBoxes
+        fmt: cxcywh
+        normalize: true
+      policy:
+        name: stop_epoch
+        epoch:
+        - 4
+        - 50
+        - 90
+        ops:
+        - Mosaic
+        - RandomPhotometricDistort
+        - RandomZoomOut
+        - RandomIoUCrop
+      mosaic_prob: 0.5
+    multi_task: true
+  shuffle: true
+  num_workers: 4
+  drop_last: true
+  collate_fn:
+    type: BatchImageCollateFunction
+    base_size: 1024
+    base_size_repeat: 3
+    stop_epoch: 90
+    mixup_prob: 0.5
+    mixup_epochs:
+    - 4
+    - 50
+    copyblend_prob: 0.5
+    copyblend_epochs:
+    - 4
+    - 90
+    area_threshold: 100
+    num_objects: 3
+    with_expand: true
+    expand_ratios:
+    - 0.1
+    - 0.25
+    ema_restart_decay: 0.9999
+  total_batch_size: 8
+val_dataloader:
+  type: DataLoader
+  dataset:
+    type: CocoDetection
+    img_folder: ./data/roaddistress2026/images/val
+    ann_file: ./data/roaddistress2026/annotations/instances_val.json
+    return_masks: false
+    transforms:
+      type: Compose
+      ops:
+      - type: Resize
+        size:
+        - 1024
+        - 1024
+      - type: ConvertPILImage
+        dtype: float32
+        scale: true
+      - type: Normalize
+        mean:
+        - 0.485
+        - 0.456
+        - 0.406
+        std:
+        - 0.229
+        - 0.224
+        - 0.225
+      - type: ConvertBoxes
+        fmt: cxcywh
+        normalize: true
+    multi_task: true
+  shuffle: false
+  num_workers: 4
+  drop_last: false
+  collate_fn:
+    type: BatchImageCollateFunction
+  total_batch_size: 8
+print_freq: 500
+output_dir: ./outputs/roaddistress2026_checkpoint
+checkpoint_freq: 5
+sync_bn: true
+find_unused_parameters: true
+use_amp: true
+scaler:
+  type: GradScaler
+  enabled: true
+use_ema: true
+ema:
+  type: ModelEMA
+  decay: 0.9999
+  warmups: 1000
+  start: 0
+epoches: 100
+clip_max_norm: 0.1
+optimizer:
+  type: AdamW
+  params:
+  - params: ^(?=.*.dinov3)(?!.*(?:norm|bn|bias)).*$
+    lr: 2.5e-05
+  - params: ^(?=.*.dinov3)(?=.*(?:norm|bn|bias)).*$
+    lr: 2.5e-05
+    weight_decay: 0.0
+  - params: ^(?=.*(?:sta|encoder|decoder))(?=.*(?:norm|bn|bias)).*$
+    weight_decay: 0.0
+  lr: 0.0005
+  betas:
+  - 0.9
+  - 0.999
+  weight_decay: 0.000125
+lr_scheduler:
+  type: MultiStepLR
+  milestones:
+  - 500
+  gamma: 0.1
+lr_warmup_scheduler:
+  type: LinearWarmup
+  warmup_duration: 500
+model: DEIM
+criterion: DEIMCriterion
+postprocessor: PostProcessor
+use_focal_loss: true
+eval_spatial_size:
+- 1024
+- 1024
+DEIM:
+  backbone: DINOv3STAs
+  encoder: HybridEncoder
+  decoder: DEIMTransformer
+  use_decoupled_grid: false
+  grid_head:
+    type: FrequencyAttentionGridHead
+    in_channels:
+    - 224
+    - 224
+    - 224
+    hidden_dim: 224
+    num_classes: 4
+    num_blocks: 2
+    dropout: 0.1
+    use_adf: true
+    use_multi_scale: true
+    use_frequency_attention: true
+    freq_num_bands: 4
+    freq_use_direction: true
+    prior_probs:
+    - 0.0493
+    - 0.1415
+    - 0.4272
+    - 0.3819
+HybridEncoder:
+  in_channels:
+  - 224
+  - 224
+  - 224
+  feat_strides:
+  - 8
+  - 16
+  - 32
+  hidden_dim: 224
+  use_encoder_idx:
+  - 2
+  num_encoder_layers: 1
+  nhead: 8
+  dim_feedforward: 896
+  dropout: 0.0
+  enc_act: gelu
+  expansion: 1.0
+  depth_mult: 1
+  act: silu
+  version: deim
+  csp_type: csp2
+  fuse_op: sum
+DEIMTransformer:
+  feat_channels:
+  - 224
+  - 224
+  - 224
+  feat_strides:
+  - 8
+  - 16
+  - 32
+  hidden_dim: 224
+  num_levels: 3
+  num_layers: 4
+  eval_idx: -1
+  num_queries: 300
+  num_denoising: 100
+  label_noise_ratio: 0.5
+  box_noise_scale: 1.0
+  reg_max: 32
+  reg_scale: 4
+  layer_scale: 1
+  num_points:
+  - 3
+  - 6
+  - 3
+  cross_attn_method: default
+  query_select_method: default
+  activation: silu
+  mlp_act: silu
+  dim_feedforward: 1792
+PostProcessor:
+  num_top_queries: 300
+lrsheduler: flatcosine
+lr_gamma: 0.5
+warmup_iter: 2000
+flat_epoch: 50
+no_aug_epoch: 10
+DEIMCriterion:
+  weight_dict:
+    loss_mal: 1
+    loss_bbox: 5
+    loss_giou: 2
+    loss_fgl: 0.15
+    loss_ddf: 1.5
+    loss_vfl: 1
+    loss_grid: 1.0
+  losses:
+  - vfl
+  - boxes
+  - local
+  - grid
+  gamma: 1.5
+  alpha: 0.75
+  reg_max: 32
+  matcher:
+    type: HungarianMatcher
+    weight_dict:
+      cost_class: 2
+      cost_bbox: 5
+      cost_giou: 2
+    alpha: 0.25
+    gamma: 2.0
+    change_matcher: true
+    iou_order_alpha: 4.0
+    matcher_change_epoch: 80
+  use_uncertainty_weighting: false
+  grid_focal_alpha: 0.5
+  grid_focal_gamma: 1.5
+  grid_focal_weight: 1.0
+  use_direction_loss: true
+  direction_loss_weight: 0.1
+  direction_lc_idx: 0
+  direction_tc_idx: 1
+  grid_use_adaptive_sampling: false
+DINOv3STAs:
+  name: dinov3_vits16
+  weights_path: ./ckpts/dinov3_vits16_pretrain_lvd1689m-08c60483.pth
+  interaction_indexes:
+  - 5
+  - 8
+  - 11
+  finetune: true
+  conv_inplane: 32
+  hidden_dim: 224

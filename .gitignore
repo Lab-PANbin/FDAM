@@ -1,0 +1,75 @@
+# Keep the public repository focused on the FDAM implementation.
+/*
+!/.gitignore
+!/LICENSE
+!/README.md
+!/environment.yml
+!/requirements.txt
+!/train.py
+!/engine/
+!/configs/
+!/tools/
+
+# Local experiment recipes and cluster launchers stay on the server.
+/configs/*
+!/configs/fdam/
+/tools/*
+!/tools/inference/
+/tools/inference/*
+!/tools/inference/torch_inf_road_vis_en.py
+!/tools/inference/eval_grid_comparison.py
+!/tools/inference/export_road_grid_predictions.py
+!/tools/inference/eval_road_grid_protocol.py
+
+# Duplicate implementations and development artifacts.
+/engine/deim/deim_criterion_well.py
+/engine/deim/grid_enhancer_old.py
+* copy.py
+*_backup.py
+*.bak
+*.orig
+*.rej
+--git-common-dir/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+.DS_Store
+
+# Generated files, including those placed under source directories.
+*.log
+*.out
+*.err
+*.sarif
+events.out.tfevents.*
+*.pth
+*.pt
+*.ckpt
+*.onnx
+*.engine
+*.npz
+*.npy
+*.pkl
+*.pdf
+*.png
+*.jpg
+*.jpeg
+*.zip
+*.tar
+*.tar.gz
+
+# Private experiments and deployment artifacts.
+/weight/
+/weights/
+/deploy_onnx/
+/deploy/
+/evaluation_mixed_lrsr_50_20261104/
+/outputs/
+/results/
+/logs/
+/scripts/
+/tests/
+/tmp/
+/engine/backbone/test_resnet.py
+.env
+.env.*
